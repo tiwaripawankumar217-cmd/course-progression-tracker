@@ -1,0 +1,13 @@
+{
+  "course_id": "INVALID-001",
+  "lectures": [
+    {
+      "week": 0,
+      "day": 1,
+      "lecture": "",
+      "content": [],
+      "classwork": [],
+      "homework": []
+    }
+  ]
+}

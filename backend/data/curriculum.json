@@ -1,0 +1,56 @@
+{
+  "course_id": "GEN-101",
+  "course_name": "Foundational Course Curriculum",
+  "lectures": [
+    {
+      "week": 1,
+      "day": 1,
+      "lecture": "LEC-1",
+      "content": [
+        "Topic A: Core Principles and Foundations",
+        "Topic B: Conceptual Framework and Terminology",
+        "Topic C: Primary Methodologies and Workflow"
+      ],
+      "classwork": [
+        "Activity 1: Guided Concept Review",
+        "Activity 2: Baseline Problem Set"
+      ],
+      "homework": [
+        "Homework 1: Formative Assessment and Practice Exercises"
+      ]
+    },
+    {
+      "week": 1,
+      "day": 2,
+      "lecture": "LEC-2",
+      "content": [
+        "Topic D: Analysis and Decomposition Techniques",
+        "Topic E: Application of Quantitative Techniques",
+        "Topic F: Comparative Evaluation of Results"
+      ],
+      "classwork": [
+        "Activity 3: Collaborative Case Exploration"
+      ],
+      "homework": [
+        "Homework 2: Structured Problem Formulation"
+      ]
+    },
+    {
+      "week": 1,
+      "day": 3,
+      "lecture": "LEC-3",
+      "content": [
+        "Topic G: Advanced Synthesis and Integration",
+        "Topic H: Critical Failure Modes and Diagnostics",
+        "Topic I: Optimization and Best Practices"
+      ],
+      "classwork": [
+        "Activity 4: Diagnostic Laboratory Exercise",
+        "Activity 5: Peer Feedback Review"
+      ],
+      "homework": [
+        "Homework 3: Comprehensive Synthesis Task"
+      ]
+    }
+  ]
+}
