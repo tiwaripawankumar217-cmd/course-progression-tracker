@@ -21,6 +21,14 @@ def test_get_sample_audio():
     assert len(response.content) > 100
 
 
+def test_get_mic_dictation_page():
+    """Verify GET /lecture/record serves the in-browser dictation UI."""
+    response = client.get("/lecture/record")
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "Lecture Dictation Studio" in response.text
+
+
 def test_upload_audio_mock_provider_success():
     """Test audio upload using mock provider returns valid transcript response."""
     # Obtain sample WAV audio
