@@ -8,8 +8,8 @@ A modular, course-agnostic system designed to automatically track, verify, and d
 
 This project is built incrementally over 7 distinct stages:
 
-* **Day 1: Project Foundation + Curriculum Ingestion** *(Current)*
-* **Day 2: Audio Ingestion + Speech-to-Text**
+* **Day 1: Project Foundation + Curriculum Ingestion** *(Completed)*
+* **Day 2: Audio Ingestion + Speech-to-Text** *(Completed)*
 * **Day 3: AI Lecture Analysis**
 * **Day 4: Curriculum Mapping + Progress Engine**
 * **Day 5: Excel Generation / Update**
@@ -202,4 +202,21 @@ Response:
 #### 6. Reset Curriculum Back to Default Sample
 ```bash
 curl -s -X POST http://127.0.0.1:8000/curriculum/reset
+```
+
+#### 7. Verify API Key Status (Safe Check)
+```bash
+curl -s http://127.0.0.1:8000/config/status
+```
+
+#### 8. Upload Lecture Audio (Mock Provider)
+```bash
+curl -s -X POST "http://127.0.0.1:8000/lecture/audio?provider=mock" \
+  -F "file=@/path/to/lecture.mp3"
+```
+
+#### 9. Upload Lecture Audio (AssemblyAI Provider)
+```bash
+curl -s -X POST http://127.0.0.1:8000/lecture/audio \
+  -F "file=@/path/to/lecture.mp3"
 ```

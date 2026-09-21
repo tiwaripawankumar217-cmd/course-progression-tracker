@@ -4,10 +4,12 @@ from backend.schemas.curriculum import (
     CurriculumLoadResponse,
     ErrorResponse,
 )
+from backend.schemas.lecture import AudioTranscriptionResponse
 
 __all__ = [
     "CurriculumResponse",
     "CurriculumSummary",
     "CurriculumLoadResponse",
     "ErrorResponse",
+    "AudioTranscriptionResponse",
 ]

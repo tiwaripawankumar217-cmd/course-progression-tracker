@@ -5,6 +5,8 @@ from fastapi.responses import JSONResponse
 
 from backend.api.routes.health import router as health_router
 from backend.api.routes.curriculum import router as curriculum_router
+from backend.api.routes.config import router as config_router
+from backend.api.routes.lecture import router as lecture_router
 from backend.services.curriculum_service import curriculum_service, DEFAULT_CURRICULUM_PATH
 
 
@@ -67,6 +69,8 @@ async def root():
 # Include Modular Routers
 app.include_router(health_router)
 app.include_router(curriculum_router)
+app.include_router(config_router)
+app.include_router(lecture_router)
 
 
 if __name__ == "__main__":
