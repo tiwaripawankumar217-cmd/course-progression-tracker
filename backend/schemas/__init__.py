@@ -5,6 +5,11 @@ from backend.schemas.curriculum import (
     ErrorResponse,
 )
 from backend.schemas.lecture import AudioTranscriptionResponse
+from backend.schemas.analysis import (
+    SupportingMaterialInput,
+    AnalyzeLectureRequest,
+    AnalyzeLectureResponse,
+)
 
 __all__ = [
     "CurriculumResponse",
@@ -12,4 +17,7 @@ __all__ = [
     "CurriculumLoadResponse",
     "ErrorResponse",
     "AudioTranscriptionResponse",
+    "SupportingMaterialInput",
+    "AnalyzeLectureRequest",
+    "AnalyzeLectureResponse",
 ]

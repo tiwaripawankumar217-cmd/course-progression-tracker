@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request, status, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -7,6 +7,7 @@ from backend.api.routes.health import router as health_router
 from backend.api.routes.curriculum import router as curriculum_router
 from backend.api.routes.config import router as config_router
 from backend.api.routes.lecture import router as lecture_router
+from backend.api.routes.analysis import router as analysis_router
 from backend.services.curriculum_service import curriculum_service, DEFAULT_CURRICULUM_PATH
 
 
@@ -29,7 +30,7 @@ app = FastAPI(
         "Course-agnostic progression tracking system that automates curriculum mapping, "
         "lecture content progression, and verification."
     ),
-    version="1.0.0-day1",
+    version="1.0.0-day3",
     lifespan=lifespan,
 )
 
@@ -59,11 +60,29 @@ async def root():
     return {
         "service": "GenAI-Powered Automated Course Progression Tracker",
         "day": 1,
+        "current_stage": "Day 3: AI Lecture Analysis + Multi-Material Context",
         "status": "online",
         "docs_url": "/docs",
         "health_url": "/health",
         "curriculum_url": "/curriculum",
+        "analysis_url": "/analyze",
+        "analysis_ui_url": "/analyze/ui",
     }
+
+
+@app.get("/.well-known/appspecific/com.chrome.devtools.json", include_in_schema=False)
+async def chrome_devtools():
+    """Silent 200 response for Chrome DevTools internal browser probe."""
+    return JSONResponse(status_code=200, content={})
+
+
+FAVICON_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🎓</text></svg>"""
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Returns a clean 🎓 icon for the browser tab."""
+    return Response(content=FAVICON_SVG, media_type="image/svg+xml")
 
 
 # Include Modular Routers
@@ -71,6 +90,7 @@ app.include_router(health_router)
 app.include_router(curriculum_router)
 app.include_router(config_router)
 app.include_router(lecture_router)
+app.include_router(analysis_router)
 
 
 if __name__ == "__main__":
