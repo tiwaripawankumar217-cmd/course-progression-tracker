@@ -8,6 +8,7 @@ from backend.api.routes.curriculum import router as curriculum_router
 from backend.api.routes.config import router as config_router
 from backend.api.routes.lecture import router as lecture_router
 from backend.api.routes.analysis import router as analysis_router
+from backend.api.routes.progress import router as progress_router
 from backend.services.curriculum_service import curriculum_service, DEFAULT_CURRICULUM_PATH
 
 
@@ -30,7 +31,7 @@ app = FastAPI(
         "Course-agnostic progression tracking system that automates curriculum mapping, "
         "lecture content progression, and verification."
     ),
-    version="1.0.0-day3",
+    version="1.0.0-day4",
     lifespan=lifespan,
 )
 
@@ -60,13 +61,15 @@ async def root():
     return {
         "service": "GenAI-Powered Automated Course Progression Tracker",
         "day": 1,
-        "current_stage": "Day 3: AI Lecture Analysis + Multi-Material Context",
+        "current_stage": "Day 4: Curriculum Mapping + Progress Engine + Clean UI",
         "status": "online",
         "docs_url": "/docs",
         "health_url": "/health",
         "curriculum_url": "/curriculum",
         "analysis_url": "/analyze",
         "analysis_ui_url": "/analyze/ui",
+        "progress_url": "/progress/calculate",
+        "progress_ui_url": "/progress/ui",
     }
 
 
@@ -85,12 +88,34 @@ async def favicon():
     return Response(content=FAVICON_SVG, media_type="image/svg+xml")
 
 
+from pathlib import Path
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+
 # Include Modular Routers
 app.include_router(health_router)
 app.include_router(curriculum_router)
 app.include_router(config_router)
 app.include_router(lecture_router)
 app.include_router(analysis_router)
+app.include_router(progress_router)
+
+# Serve Frontend React UI
+FRONTEND_DIST = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+if FRONTEND_DIST.exists() and (FRONTEND_DIST / "index.html").exists():
+    if (FRONTEND_DIST / "assets").exists():
+        app.mount("/progress/ui/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="progress_ui_assets")
+        app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="root_assets")
+
+    @app.get("/progress/ui", include_in_schema=False)
+    @app.get("/progress/ui/", include_in_schema=False)
+    async def serve_progress_ui():
+        return FileResponse(
+            str(FRONTEND_DIST / "index.html"),
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+        )
+
+
 
 
 if __name__ == "__main__":

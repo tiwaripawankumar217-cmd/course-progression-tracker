@@ -11,8 +11,9 @@ This project is built incrementally over 7 distinct stages:
 * **Day 1: Project Foundation + Curriculum Ingestion** *(Completed)*
 * **Day 2: Audio Ingestion + Speech-to-Text** *(Completed)*
 * **Day 3: AI Lecture Analysis + Multi-Material Context** *(Completed)*
-* **Day 4: Curriculum Mapping + Progress Engine**
+* **Day 4: Curriculum Mapping + Progress Engine + Clean UI** *(Completed)*
 * **Day 5: Excel Generation / Update**
+
 * **Day 6: Teacher Review UI (React)**
 * **Day 7: Full Integration + Testing + Demo**
 
@@ -267,3 +268,57 @@ curl -s -X POST http://127.0.0.1:8000/analyze \
     ]
   }'
 ```
+
+---
+
+## 📊 Day 4: Curriculum Mapping, Progress Engine + Clean UI
+
+Day 4 reconciles the structured Day 3 AI lecture extraction against the planned Day 1 curriculum to compute reliable, deterministic course progression results and visualize them in a clean academic React interface.
+
+### Deterministic Formulas
+All progression mathematics are calculated strictly in Python backend logic with zero LLM arithmetic:
+
+1. **% Covered**:
+   $$\text{\% Covered} = \frac{\text{covered curriculum items} + \text{uncertain items}}{\text{total planned curriculum items}} \times 100$$
+   *Measures the portion of the planned curriculum evidenced or touched in the lecture.*
+
+2. **% Completed**:
+   $$\text{\% Completed} = \frac{\text{confirmed covered curriculum items (confidence} \ge \text{threshold)}}{\text{total planned curriculum items}} \times 100$$
+   *Strict metric excluding tentative or low-confidence topics awaiting human teacher review.*
+
+3. **Deterministic Status Engine**:
+   - **`COMPLETED`**: Reached when $\text{\% Completed} \ge \text{completed\_threshold}$ (default: $100\%$).
+   - **`ONGOING`**: When $0\% < \text{\% Covered} < \text{completed\_threshold}$ and lecture session continues.
+   - **`SPILLED OVER`**: Triggered when a finalized lecture session concludes with uncompleted planned topics.
+   - **`NOT_STARTED`**: $0\%$ coverage or unmapped lecture delivery.
+
+### Anti-Hallucination & Low-Confidence Guardrails
+- **Curriculum Boundaries**: Topics outside the active curriculum are never added as new curriculum topics; they are routed to `warnings` as informational notes.
+- **Uncertain / Needs Review**: Topics with confidence $< 0.65$ (e.g. $0.42$) are classified as `uncertain` and surfaced in amber for human teacher inspection.
+- **Classwork & Homework**: Only displayed when verified with transcript evidence; otherwise falls back to `"No classwork detected"` / `"No homework detected"`.
+
+### Endpoints
+- `POST /progress/calculate`: Accepts `analysis`, optional `curriculum`, and `config` to return deterministic `LectureProgression`.
+- `GET /progress/demo`: Returns safe pre-configured demonstration scenarios.
+- `GET /progress/ui`: Serves the compiled React productivity dashboard (`http://127.0.0.1:8000/progress/ui`).
+
+#### Example Progress Calculation Request
+```bash
+curl -s -X POST http://127.0.0.1:8000/progress/calculate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "lecture_code": "LEC-1",
+    "analysis": {
+      "analysis_status": "SUCCESS",
+      "matched_lecture": {"lecture_name": "LEC-1", "confidence": 0.95},
+      "topics_taught": [
+        {"curriculum_topic": "Arrays", "evidence": "Contiguous memory layout explained.", "confidence": 0.95},
+        {"curriculum_topic": "Array Traversal", "evidence": "Linear scan loop demonstrated.", "confidence": 0.92}
+      ],
+      "topics_not_evidenced": ["Time Complexity"],
+      "classwork": [{"description": "Find Maximum Element", "evidence": "Coded max value scan.", "confidence": 0.95}],
+      "homework": []
+    }
+  }'
+```
+

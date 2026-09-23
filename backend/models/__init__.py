@@ -6,6 +6,15 @@ from backend.models.analysis import (
     MatchedLecture,
     LectureAnalysisResult,
 )
+from backend.models.progress import (
+    TopicStatus,
+    TopicProgress,
+    ClassworkItem,
+    HomeworkItem,
+    MaterialItem,
+    ProgressThresholdConfig,
+    LectureProgression,
+)
 
 __all__ = [
     "LecturePlan",
@@ -15,4 +24,12 @@ __all__ = [
     "HomeworkAssigned",
     "MatchedLecture",
     "LectureAnalysisResult",
+    "TopicStatus",
+    "TopicProgress",
+    "ClassworkItem",
+    "HomeworkItem",
+    "MaterialItem",
+    "ProgressThresholdConfig",
+    "LectureProgression",
 ]
+

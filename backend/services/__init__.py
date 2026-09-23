@@ -17,6 +17,8 @@ from backend.services.analysis_service import (
     GEMINI_API_KEY_ERROR_MESSAGE,
 )
 
+from backend.services.progress_engine import ProgressEngine, progress_engine
+
 __all__ = [
     "CurriculumService",
     "curriculum_service",
@@ -34,4 +36,7 @@ __all__ = [
     "MockLectureAnalysisService",
     "get_analysis_service",
     "GEMINI_API_KEY_ERROR_MESSAGE",
+    "ProgressEngine",
+    "progress_engine",
 ]
+

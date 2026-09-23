@@ -10,6 +10,10 @@ from backend.schemas.analysis import (
     AnalyzeLectureRequest,
     AnalyzeLectureResponse,
 )
+from backend.schemas.progress import (
+    CalculateProgressRequest,
+    CalculateProgressResponse,
+)
 
 __all__ = [
     "CurriculumResponse",
@@ -20,4 +24,7 @@ __all__ = [
     "SupportingMaterialInput",
     "AnalyzeLectureRequest",
     "AnalyzeLectureResponse",
+    "CalculateProgressRequest",
+    "CalculateProgressResponse",
 ]
+
