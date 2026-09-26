@@ -12,10 +12,9 @@ This project is built incrementally over 7 distinct stages:
 * **Day 2: Audio Ingestion + Speech-to-Text** *(Completed)*
 * **Day 3: AI Lecture Analysis + Multi-Material Context** *(Completed)*
 * **Day 4: Curriculum Mapping + Progress Engine + Clean UI** *(Completed)*
-* **Day 5: Excel Generation / Update**
-
-* **Day 6: Teacher Review UI (React)**
-* **Day 7: Full Integration + Testing + Demo**
+* **Day 5: Excel Generation / Update** *(Completed)*
+* **Day 6: Teacher Review UI (React)** *(Completed)*
+* **Day 7: Full Integration + Testing + Demo** *(Completed)*
 
 ---
 
@@ -321,4 +320,122 @@ curl -s -X POST http://127.0.0.1:8000/progress/calculate \
     }
   }'
 ```
+
+---
+
+## 📊 Day 5: Excel Progression Sheet Generation & Update
+
+Day 5 converts validated Day 4 progression outputs into an official faculty Course Progression spreadsheet (`.xlsx`), with support for updating existing workbooks without losing prior records.
+
+### Required Output Schema (Strictly Enforced)
+
+| Column Name | Type | Description |
+| :--- | :--- | :--- |
+| **`Date Taught`** | Text / Date | ISO format (YYYY-MM-DD) date of lecture delivery |
+| **`Status`** | Text | Normalized progression status (`Completed`, `Ongoing`, `Spilled Over`) |
+| **`% Completed`** | Numeric (2 dec) | Deterministic completed percentage from Day 4 engine (e.g. `66.67`) |
+| **`% Covered`** | Numeric (2 dec) | Deterministic covered percentage from Day 4 engine (e.g. `66.67`) |
+| **`CW`** | Text | Classwork activities evidenced from lecture transcript |
+| **`HW`** | Text | Homework assignments explicitly assigned (never hallucinated) |
+
+### Key Capabilities
+1. **New Workbook Generation**: Generates clean, professional `.xlsx` file with frozen header row, Calibri typography, autofilter, and auto-adjusted column widths.
+2. **Deterministic Duplicate Protection**: When re-exporting the same date and lecture, updates the existing row in place instead of creating duplicate records.
+3. **Existing Workbook Update**: Preserves all prior rows while appending or updating the current lecture record.
+4. **Secondary Evidence Sheet**: Includes an optional `Evidence` sheet with topic confidence and transcript excerpts for review.
+
+### Endpoints
+- `POST /progress/export`: Accepts `ExportProgressionRequest` or Day 4 `LectureProgression` payload; returns downloadable binary `.xlsx` workbook.
+- `POST /progress/export/update`: Accepts multipart form (`file`: existing `.xlsx`, `progression_json`: JSON string); returns updated `.xlsx` workbook.
+
+#### Example Excel Export Request
+```bash
+curl -s -X POST http://127.0.0.1:8000/progress/export \
+  -H "Content-Type: application/json" \
+  -d '{
+    "lecture": "LEC-1",
+    "date_taught": "2026-09-26",
+    "status": "Ongoing",
+    "percent_completed": 66.67,
+    "percent_covered": 66.67,
+    "classwork": "Find Maximum Element in Array",
+    "homework": "Solve 5 Array Practice Problems"
+  }' \
+  --output course_progression.xlsx
+```
+
+---
+
+## 👩‍🏫 Day 6: Teacher Review UI (React) & Approval Workflow
+
+Day 6 implements the Human-in-the-Loop (HITL) interface empowering educators to verify AI findings, apply pedagogical overrides to low-confidence topics, and approve the official progression records.
+
+### Key Capabilities
+1. **Uncertain Topic Inspection**: Highlights topics with low AI confidence ($< 0.65$) with full transcript evidence quotes for rapid teacher evaluation.
+2. **Pedagogical Overrides**: One-click actions (`✓ Covered` / `✗ Not Covered`) that trigger deterministic real-time recalculation of `% Completed`, `% Covered`, and status.
+3. **Formal Instructor Sign-Off**: Captures instructor name, verification timestamp, and pedagogical notes.
+4. **Direct Excel Sync**: Automatically commits the approved lecture record directly into `course_progression.xlsx`.
+
+### Endpoints
+- `POST /progress/review/approve`: Submits instructor verification and commits approved progression into `course_progression.xlsx`.
+- `GET /progress/download`: Directly downloads the current `course_progression.xlsx` file.
+
+#### Example Teacher Approval Request
+```bash
+curl -s -X POST http://127.0.0.1:8000/progress/review/approve \
+  -H "Content-Type: application/json" \
+  -d '{
+    "progression": { ...LectureProgression... },
+    "instructor_name": "Prof. Sharma",
+    "comments": "Verified and approved.",
+    "commit_to_excel": true
+  }'
+```
+
+---
+
+## 🎯 Day 7: Product Usability, User Guide & End-to-End Demo
+
+Day 7 elevates the system from an engineering MVP into a **faculty-ready product** that any professor or instructor can open and immediately operate without technical assistance.
+
+### Key Usability Enhancements
+
+1. **Self-Explanatory Interface**:
+   - Academic terminology with visual cues explaining *what this product does*, *what to upload*, and *how progress is calculated*.
+   - Clear input sections: Audio recording upload (`.mp3`, `.wav`), spoken transcript text, and supporting slide/notes files (`.pdf`, `.pptx`, `.docx`).
+   - One-click sample test audio for instant evaluation without recording live lectures.
+
+2. **Unified 6-Step Faculty Workflow**:
+   ```text
+   Step 1: Select / Verify Course Curriculum
+             ↓
+   Step 2: Upload Lecture Audio (or enter transcript)
+             ↓
+   Step 3: Attach Optional Supporting Materials (Slides, Notes)
+             ↓
+   Step 4: AI Lecture Delivery Analysis & Curriculum Mapping
+             ↓
+   Step 5: Human-in-the-Loop Review & Pedagogical Overrides
+             ↓
+   Step 6: Sync to Official Excel Progression Spreadsheet
+   ```
+
+3. **Interactive "How to Use" Faculty Guide**:
+   - Accessible via the **📘 How to Use / Guide** button in the header.
+   - Comprehensive walk-through of the 6-step workflow, explanation of progression formulas (`% Completed` vs `% Covered`), status rules (`Completed`, `Ongoing`, `Spilled Over`), and faculty FAQs.
+
+4. **Automated End-to-End Pipeline Verification**:
+   - `test_day7_e2e_workflow.py` validates the complete pipeline from Audio Ingestion $\rightarrow$ Transcription $\rightarrow$ Multi-Material AI Extraction $\rightarrow$ Curriculum Reconciler $\rightarrow$ Teacher Override $\rightarrow$ Excel Workbook persistence.
+
+### End-to-End Workflow Verification Command
+```bash
+pytest backend/tests/test_day7_e2e_workflow.py -v
+```
+
+### Complete Test Suite
+```bash
+pytest backend/tests/ -v
+```
+*(68 passed, 0 failed)*
+
 

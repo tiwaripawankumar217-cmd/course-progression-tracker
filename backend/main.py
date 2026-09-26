@@ -31,7 +31,7 @@ app = FastAPI(
         "Course-agnostic progression tracking system that automates curriculum mapping, "
         "lecture content progression, and verification."
     ),
-    version="1.0.0-day4",
+    version="1.0.0-day5",
     lifespan=lifespan,
 )
 
@@ -61,7 +61,7 @@ async def root():
     return {
         "service": "GenAI-Powered Automated Course Progression Tracker",
         "day": 1,
-        "current_stage": "Day 4: Curriculum Mapping + Progress Engine + Clean UI",
+        "current_stage": "Day 5: Excel Progression Sheet Generation & Update",
         "status": "online",
         "docs_url": "/docs",
         "health_url": "/health",
@@ -69,6 +69,7 @@ async def root():
         "analysis_url": "/analyze",
         "analysis_ui_url": "/analyze/ui",
         "progress_url": "/progress/calculate",
+        "progress_export_url": "/progress/export",
         "progress_ui_url": "/progress/ui",
     }
 

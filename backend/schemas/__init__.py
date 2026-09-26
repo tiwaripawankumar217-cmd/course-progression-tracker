@@ -13,6 +13,9 @@ from backend.schemas.analysis import (
 from backend.schemas.progress import (
     CalculateProgressRequest,
     CalculateProgressResponse,
+    ExportProgressionRequest,
+    TeacherReviewApprovalRequest,
+    TeacherReviewApprovalResponse,
 )
 
 __all__ = [
@@ -26,5 +29,8 @@ __all__ = [
     "AnalyzeLectureResponse",
     "CalculateProgressRequest",
     "CalculateProgressResponse",
+    "ExportProgressionRequest",
+    "TeacherReviewApprovalRequest",
+    "TeacherReviewApprovalResponse",
 ]
 

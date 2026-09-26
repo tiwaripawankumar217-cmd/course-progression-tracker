@@ -44,6 +44,8 @@ htmlcov/
 # Output files
 backend/output/*.xlsx
 !backend/output/.gitkeep
+*.xlsx
+.DS_Store
 
 # Frontend Node Modules & Dist
 node_modules/

@@ -18,6 +18,7 @@ from backend.services.analysis_service import (
 )
 
 from backend.services.progress_engine import ProgressEngine, progress_engine
+from backend.services.excel_service import ExcelService, excel_service
 
 __all__ = [
     "CurriculumService",
@@ -38,5 +39,7 @@ __all__ = [
     "GEMINI_API_KEY_ERROR_MESSAGE",
     "ProgressEngine",
     "progress_engine",
+    "ExcelService",
+    "excel_service",
 ]
 

@@ -726,6 +726,19 @@ async def analyze_ui_page():
           }
         }
       } catch (_) {}
+
+      // Auto-load transcript if provided from Dictation Studio
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlTranscript = urlParams.get('transcript');
+        const sessionTranscript = sessionStorage.getItem('analysis_transcript');
+        const textToLoad = urlTranscript || sessionTranscript;
+        if (textToLoad && textToLoad.trim().length > 0) {
+          document.getElementById('transcriptInput').value = textToLoad;
+          sessionStorage.removeItem('analysis_transcript');
+          runAnalysis();
+        }
+      } catch (_) {}
     });
   </script>
 </body>

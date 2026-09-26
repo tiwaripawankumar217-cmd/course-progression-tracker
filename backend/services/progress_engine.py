@@ -221,5 +221,38 @@ class ProgressEngine:
             warnings=warnings,
         )
 
+    @staticmethod
+    def recalculate_from_topics(
+        topics: List[TopicProgress],
+        config: Optional[ProgressThresholdConfig] = None
+    ) -> Tuple[float, float, str]:
+        """
+        Deterministically recalculates % Covered, % Completed, and status
+        from a list of TopicProgress items (e.g. after teacher overrides).
+        """
+        cfg = config or ProgressThresholdConfig()
+        total = len(topics)
+        if total == 0:
+            return 0.0, 0.0, "NOT_STARTED"
+
+        covered_count = sum(1 for t in topics if t.status == TopicStatus.COVERED)
+        uncertain_count = sum(1 for t in topics if t.status == TopicStatus.UNCERTAIN)
+
+        percent_covered = round(((covered_count + uncertain_count) / total) * 100.0, 2)
+        percent_completed = round((covered_count / total) * 100.0, 2)
+
+        if covered_count == 0 and uncertain_count == 0:
+            status_val = "NOT_STARTED"
+        elif percent_completed >= cfg.completed_threshold:
+            status_val = "COMPLETED"
+        elif cfg.spillover_enabled and cfg.is_finalized and percent_completed < cfg.completed_threshold:
+            status_val = "SPILLED OVER"
+        elif percent_covered > cfg.ongoing_threshold:
+            status_val = "ONGOING"
+        else:
+            status_val = "NOT_STARTED"
+
+        return percent_covered, percent_completed, status_val
+
 
 progress_engine = ProgressEngine()

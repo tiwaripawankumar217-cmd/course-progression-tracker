@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
+import HowToUseModal from '../components/HowToUseModal';
+import LectureIngestionCard from '../components/LectureIngestionCard';
 import ProgressSummary from '../components/ProgressSummary';
 import TopicList from '../components/TopicList';
 import ClassworkSection from '../components/ClassworkSection';
@@ -7,6 +9,8 @@ import HomeworkSection from '../components/HomeworkSection';
 import MaterialList from '../components/MaterialList';
 import WarningMessage from '../components/WarningMessage';
 import LoadingState from '../components/LoadingState';
+import ExportSection from '../components/ExportSection';
+import TeacherReviewPanel from '../components/TeacherReviewPanel';
 import { calculateProgress, getDemoScenarios } from '../services/api';
 
 export default function Dashboard() {
@@ -16,6 +20,7 @@ export default function Dashboard() {
   const [progression, setProgression] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
 
   // Load demonstration scenarios on mount
   useEffect(() => {
@@ -67,8 +72,7 @@ export default function Dashboard() {
     }
   }
 
-  function handleScenarioSelect(e) {
-    const scId = e.target.value;
+  function handleScenarioSelect(scId) {
     setSelectedScenarioId(scId);
     const target = scenarios.find(s => s.id === scId);
     if (target) {
@@ -76,98 +80,45 @@ export default function Dashboard() {
     }
   }
 
-  const currentScenario = scenarios.find(s => s.id === selectedScenarioId);
+  async function handleAnalysisCalculated(analysis, lectureCode, dateTaught) {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await calculateProgress({
+        analysis,
+        curriculum,
+        lecture_code: lectureCode,
+        date_taught: dateTaught,
+        config: { completed_threshold: 100.0, confidence_threshold: 0.65, spillover_enabled: true, is_finalized: false },
+      });
+      if (response && response.success) {
+        setProgression(response.progression);
+      } else {
+        throw new Error(response.message || 'Calculation was not successful.');
+      }
+    } catch (err) {
+      setError(`Error calculating progress: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="app-container">
-      <Header />
+      <Header onOpenGuide={() => setIsGuideOpen(true)} />
 
-      {/* Input / Scenario Selection Card */}
-      <section className="academic-card" aria-label="Lecture Selection & Analysis Input">
-        <h2 className="card-title" style={{ fontSize: '1rem' }}>
-          <span>⚙️</span> Lecture Selection & Verification Flow
-        </h2>
-        <p className="card-subtitle" style={{ marginBottom: '1rem' }}>
-          Select a lecture scenario to verify deterministic curriculum mapping, % coverage arithmetic, and status detection.
-        </p>
+      {/* Faculty Quick-Start Guide Modal */}
+      <HowToUseModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
 
-        {/* Step 1: Scenario Select */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-          <div>
-            <label
-              htmlFor="scenario-select"
-              style={{ display: 'block', fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}
-            >
-              Choose Lecture Delivery Scenario:
-            </label>
-            <select
-              id="scenario-select"
-              value={selectedScenarioId}
-              onChange={handleScenarioSelect}
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.85rem',
-                fontSize: '0.9rem',
-                border: '1px solid var(--border-color)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: 'var(--bg-card)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              {scenarios.map(sc => (
-                <option key={sc.id} value={sc.id}>
-                  {sc.title} — {sc.description}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Steps Status Indicators */}
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '1rem',
-            padding: '0.75rem 1rem',
-            backgroundColor: 'var(--bg-subtle)',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '0.825rem',
-            color: 'var(--text-secondary)',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ color: 'var(--success)' }}>✓</span>
-              <span><strong>Step 1:</strong> Lecture Data Selected ({currentScenario?.lecture_code || 'LEC-1'})</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ color: 'var(--success)' }}>✓</span>
-              <span><strong>Step 2:</strong> Transcript Ready</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-              <span style={{ color: 'var(--success)' }}>✓</span>
-              <span><strong>Step 3:</strong> Supporting Materials Linked</span>
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <div style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '0.25rem' }}>
-            <button
-              onClick={() => runCalculation(currentScenario)}
-              disabled={loading}
-              style={{
-                backgroundColor: 'var(--primary)',
-                color: '#ffffff',
-                fontWeight: '600',
-                fontSize: '0.9rem',
-                padding: '0.6rem 1.25rem',
-                borderRadius: 'var(--radius-sm)',
-                boxShadow: 'var(--shadow-sm)',
-                opacity: loading ? 0.7 : 1,
-              }}
-            >
-              {loading ? 'Calculating...' : 'Recalculate Progress'}
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* Unified Ingestion & Analysis Workflow Card */}
+      <LectureIngestionCard
+        curriculum={curriculum}
+        scenarios={scenarios}
+        selectedScenarioId={selectedScenarioId}
+        onSelectScenario={handleScenarioSelect}
+        onAnalysisCalculated={handleAnalysisCalculated}
+        loading={loading}
+      />
 
       {/* Loading Indicator */}
       {loading && <LoadingState message="Analyzing lecture and calculating progression..." />}
@@ -212,6 +163,15 @@ export default function Dashboard() {
 
           {/* System Warnings & Notes */}
           <WarningMessage warnings={progression.warnings} />
+
+          {/* Day 6 Teacher Review & Verification Workspace */}
+          <TeacherReviewPanel
+            progression={progression}
+            onProgressionUpdated={setProgression}
+          />
+
+          {/* Day 5 Excel Progression Export */}
+          <ExportSection progression={progression} />
         </main>
       )}
     </div>
